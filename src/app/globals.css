@@ -1,0 +1,248 @@
+@import "tailwindcss";
+
+/*
+  Colors are role-based and switch with the theme.
+  Light — "Ink wash": #FFFFE3 ivory · #4A4A4A charcoal · #CBCBCB gray · #6D8196 slate
+  Dark  — #131213 with white type and accents
+*/
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-fg: var(--fg);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-text: var(--accent-text);
+  --color-panel: var(--panel);
+  --color-panel-fg: var(--panel-fg);
+  --color-panel-accent: var(--panel-accent);
+  --color-code-key: var(--code-key);
+  --color-code-str: var(--code-str);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-sora), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+}
+
+@theme {
+  --animate-float: float 7s ease-in-out infinite;
+  --animate-drift: drift 18s ease-in-out infinite;
+  --animate-drift-slow: drift 26s ease-in-out infinite reverse;
+  --animate-marquee: marquee 40s linear infinite;
+  --animate-ping-slow: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(-1deg); }
+    50% { transform: translateY(-14px) rotate(1deg); }
+  }
+  @keyframes drift {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(6%, -8%) scale(1.08); }
+    66% { transform: translate(-6%, 6%) scale(0.95); }
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+}
+
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: #ffffe3;
+  --surface: #f6f6da;
+  --fg: #2b2b2b;
+  --line: #cbcbcb;
+  --accent: #6d8196;
+  --accent-fg: #ffffe3;
+  --accent-text: #56697d;
+  --panel: #4a4a4a;
+  --panel-fg: #ffffe3;
+  --panel-accent: #b9c8d7;
+  --code-key: #b9c8d7;
+  --code-str: #e8e8c8;
+  --grad-from: #2b2b2b;
+  --grad-to: #6d8196;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #131213;
+  --surface: #1b1a1b;
+  --fg: #ffffff;
+  --line: #333233;
+  --accent: #ffffff;
+  --accent-fg: #131213;
+  --accent-text: #ffffff;
+  --panel: #1e1d1e;
+  --panel-fg: #ffffff;
+  --panel-accent: #a3a3a3;
+  --code-key: #ffffff;
+  --code-str: #a8a8a8;
+  --grad-from: #ffffff;
+  --grad-to: #8a8a8a;
+}
+
+/* No-JS fallback: follow the OS setting */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --bg: #131213;
+    --surface: #1b1a1b;
+    --fg: #ffffff;
+    --line: #333233;
+    --accent: #ffffff;
+    --accent-fg: #131213;
+    --accent-text: #ffffff;
+    --panel: #1e1d1e;
+    --panel-fg: #ffffff;
+    --panel-accent: #a3a3a3;
+    --code-key: #ffffff;
+    --code-str: #a8a8a8;
+    --grad-from: #ffffff;
+    --grad-to: #8a8a8a;
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    background-color: var(--bg);
+    color: var(--fg);
+    overflow-x: clip;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background: var(--accent);
+    color: var(--accent-fg);
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+    }
+  }
+}
+
+/* Circular reveal when switching theme (see ThemeToggle) */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+@layer components {
+  .container-x {
+    width: 100%;
+    max-width: 72rem;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+  @media (min-width: 640px) {
+    .container-x { padding-inline: 1.5rem; }
+  }
+  @media (min-width: 1024px) {
+    .container-x { padding-inline: 2rem; }
+  }
+
+  .grid-bg {
+    --grid-line: color-mix(in oklab, var(--grid-color, var(--fg)) 7%, transparent);
+    background-image:
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 30%, transparent 75%);
+  }
+
+  .text-gradient {
+    background: linear-gradient(100deg, var(--grad-from) 15%, var(--grad-to) 90%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid color-mix(in oklab, var(--fg) 10%, transparent);
+    border-radius: 1.25rem;
+  }
+
+  /* Soft wash behind the hero text so it stays readable over the galaxy */
+  .hero-scrim {
+    background: radial-gradient(55% 60% at 26% 55%, color-mix(in oklab, var(--bg) 70%, transparent), transparent 75%);
+  }
+
+  .mask-fade-x {
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  }
+}
+
+/*
+  ProfileCard (React Bits) tuned for this site — unlayered and more specific than
+  ProfileCard.css so it wins. Monochrome/slate holo instead of rainbow.
+*/
+.pc-card-wrapper.hero-profile {
+  touch-action: pan-y; /* the original "none" blocks page scrolling on touch screens */
+  --sunpillar-1: hsl(210, 22%, 78%);
+  --sunpillar-2: hsl(60, 60%, 94%);
+  --sunpillar-3: hsl(212, 16%, 60%);
+  --sunpillar-4: hsl(0, 0%, 88%);
+  --sunpillar-5: hsl(212, 16%, 50%);
+  --sunpillar-6: hsl(0, 0%, 72%);
+  --sunpillar-clr-1: var(--sunpillar-1);
+  --sunpillar-clr-2: var(--sunpillar-2);
+  --sunpillar-clr-3: var(--sunpillar-3);
+  --sunpillar-clr-4: var(--sunpillar-4);
+  --sunpillar-clr-5: var(--sunpillar-5);
+  --sunpillar-clr-6: var(--sunpillar-6);
+}
+.pc-card-wrapper.hero-profile .pc-details h3 {
+  font-family: var(--font-display), sans-serif;
+  font-size: min(4.2svh, 2.1em);
+  letter-spacing: -0.02em;
+  background-image: linear-gradient(to bottom, #fff, #a9b8c8);
+}
+.pc-card-wrapper.hero-profile .pc-details p {
+  background-image: linear-gradient(to bottom, #fff, #8fa0b3);
+}
+.pc-card-wrapper.hero-profile .pc-handle,
+.pc-card-wrapper.hero-profile .pc-status,
+.pc-card-wrapper.hero-profile .pc-contact-btn {
+  font-family: var(--font-inter), sans-serif;
+}
+/* Keep the photo in its original colors (the card blends it to grayscale by default) */
+.pc-card-wrapper.hero-profile .pc-avatar-content {
+  mix-blend-mode: normal;
+}
+/* Light touch-up; the photo has its own background, so fade its top edge into the card */
+.pc-card-wrapper.hero-profile .avatar {
+  filter: brightness(1.06) contrast(1.05) saturate(1.1);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 22%);
+}
+/* No holographic pattern over the photo on hover — tilt, glare and glow stay */
+.pc-card-wrapper.hero-profile .pc-shine {
+  display: none;
+}
+/* Softer glare so it doesn't darken the photo; card uses the theme's panel color */
+.pc-card-wrapper.hero-profile .pc-glare {
+  opacity: 0.35;
+}
+.pc-card-wrapper.hero-profile .pc-inside {
+  background-color: var(--panel);
+}
+@media (max-width: 480px) {
+  .pc-card-wrapper.hero-profile .pc-details h3 {
+    font-size: min(3.4svh, 1.6em);
+  }
+}
